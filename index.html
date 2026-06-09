@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iTerminal Pro — OS 27 Ultimate</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#020204">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5712/5712534.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="dynamic-bg" class="dynamic-bg">
+        <div class="bg-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div></div>
+        <canvas id="weather-canvas"></canvas>
+        <div class="scanline"></div>
+    </div>
+
+    <div id="custom-cursor" class="custom-cursor"></div>
+    <div id="custom-cursor-dot" class="custom-cursor-dot"></div>
+
+    <div class="top-status-bar glass-blur">
+        <div class="status-left">
+            <span id="system-clock"><i class="fa-solid fa-clock"></i> 00:00:00</span>
+            <button onclick="openWeatherPage()" id="cyber-weather" class="weather-trigger-btn"><i class="fa-solid fa-satellite-dish"></i> Localisation...</button>
+        </div>
+        <div class="status-center"><span class="core-brand">// iTERMINAL CORE V27.9</span></div>
+        <div class="status-right">
+            <button onclick="toggleSound()" id="sound-toggle"><i class="fa-solid fa-volume-high"></i> AUDIO ON</button>
+            <button onclick="toggleDayNight()" id="daynight-toggle"><i class="fa-solid fa-moon"></i> NIGHT</button>
+            <span id="battery-status"><i class="fa-solid fa-battery-full"></i> 100%</span>
+        </div>
+    </div>
+
+    <div id="weather-page" class="weather-page-overlay">
+        <div class="weather-window glass-blur">
+            <div class="weather-header">
+                <button class="back-btn" onclick="closeWeatherPage()"><i class="fa-solid fa-chevron-left"></i> Retour Terminal</button>
+                <span class="satellite-tag"><i class="fa-solid fa-satellite"></i> LIVE GEOLOCALIZATION UPLINK</span>
+            </div>
+            <div class="weather-content">
+                <div class="main-geo">
+                    <h1 id="w-city">NOMADE STATION</h1>
+                    <p id="w-coords">Lat: -- | Lon: --</p>
+                </div>
+                <div class="weather-display-row">
+                    <div class="weather-big-info">
+                        <span id="w-temp">--°C</span>
+                        <div id="w-desc">Analyse des flux atmosphériques...</div>
+                    </div>
+                    <div class="weather-icon-zone" id="w-icon">
+                        <i class="fa-solid fa-cloud-sun-rain"></i>
+                    </div>
+                </div>
+                <div class="weather-metrics-grid">
+                    <div class="metric-card"><span class="label">VENT SATELLITE</span><span class="val" id="w-wind">-- km/h</span></div>
+                    <div class="metric-card"><span class="label">INDEX UV</span><span class="val" id="w-uv">--</span></div>
+                    <div class="metric-card"><span class="label">HUMIDITÉ</span><span class="val" id="w-humidity">--%</span></div>
+                    <div class="metric-card"><span class="label">ÉTAT SYSTÈME</span><span class="val" style="color: var(--accent-color);">STABLE</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-panel" class="settings-panel">
+        <div class="panel-header">
+            <h3><i class="fa-solid fa-sliders"></i> SYSTEM CONFIG</h3>
+            <button class="close-x" onclick="toggleSettings()">×</button>
+        </div>
+        <div class="settings-section">
+            <h4><i class="fa-solid fa-cloud-sun"></i> Thèmes</h4>
+            <div class="setting-group">
+                <select id="theme-picker" onchange="changeTheme(this.value)">
+                    <option value="cyber">Cyber-Void (Vert Phosphore)</option>
+                    <option value="matrix">Matrix Depth (Matrix Pur)</option>
+                    <option value="sunset">Neon Sunset (Rose Cyber)</option>
+                    <option value="frost">Winter Code (Bleu Glace)</option>
+                </select>
+            </div>
+        </div>
+        <div class="settings-section">
+            <h4><i class="fa-solid fa-gem"></i> Transparence</h4>
+            <div class="setting-group"><input type="range" id="opacity-picker" min="10" max="95" value="65" oninput="updateGlass()"></div>
+            <div class="setting-group"><label>Flou</label><input type="range" id="blur-picker" min="5" max="50" value="25" oninput="updateGlass()"></div>
+        </div>
+        <button class="apply-btn" onclick="toggleSettings()">COMMITER</button>
+    </div>
+
+    <div class="main-container" id="main-terminal-view">
+        <div class="sidebar-left glass-blur">
+            <div class="sidebar-section">
+                <h5><i class="fa-solid fa-server"></i> MODULES</h5>
+                <div class="node-line"><span class="status-indicator online"></span> LERP Engine: FLUIDE</div>
+                <div class="node-line"><span class="status-indicator online"></span> Weather API: LINKED</div>
+                <div class="node-line"><span class="status-indicator blink"></span> Matrix Rain: ENGAGED</div>
+            </div>
+            <div class="sidebar-section">
+                <h5><i class="fa-solid fa-terminal"></i> APPLICATION LOGS</h5>
+                <div id="log-console" class="log-console">[KERNEL] En attente d'initialisation météo...</div>
+            </div>
+        </div>
+
+        <div class="glass-window glass-blur">
+            <div class="window-header">
+                <div class="window-controls"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                <div class="window-title"><i class="fa-solid fa-file-code"></i> core_file.html — Éditeur Crypté</div>
+                <span id="save-indicator" class="save-status"><i class="fa-solid fa-circle-check"></i> En ligne</span>
+            </div>
+            <div id="editor" contenteditable="true" spellcheck="false"></div>
+            <div class="window-status-bar">
+                <div><span id="char-count">0</span> SYMBOLES</div>
+                <div>SECURE KERNEL</div>
+                <div>STANDALONE MODE</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-dock">
+        <div class="dock-group">
+            <button onclick="execCmd('bold')"><i class="fa-solid fa-bold"></i></button>
+            <button onclick="execCmd('italic')"><i class="fa-solid fa-italic"></i></button>
+            <button onclick="execCmd('underline')"><i class="fa-solid fa-underline"></i></button>
+        </div>
+        <div class="dock-group">
+            <select onchange="execCmd('fontName', this.value)" class="dock-select">
+                <option value="JetBrains Mono">JetBrains</option>
+                <option value="Inter">Inter</option>
+            </select>
+            <input type="color" id="text-color-picker" oninput="execCmd('foreColor', this.value)" value="#ffffff">
+        </div>
+        <div class="dock-group">
+            <button onclick="openWeatherPage()" class="weather-btn-dock" title="Ouvrir l'application Météo"><i class="fa-solid fa-cloud-moon-rain"></i> METEO</button>
+            <button onclick="exportStyledFile()" class="save-btn"><i class="fa-solid fa-download"></i> EXPORT</button>
+            <button onclick="toggleSettings()"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
